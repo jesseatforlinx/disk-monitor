@@ -17,7 +17,7 @@ class DiskMonitor(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("磁盘监控工具 (PyQt5)")
-        self.resize(400, 300)
+        self.resize(400, 150)
         
 
         # 半透明窗口
