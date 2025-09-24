@@ -18,6 +18,7 @@ class DiskMonitor(QMainWindow):
         super().__init__()
         self.setWindowTitle("磁盘监控工具 (PyQt5)")
         self.resize(400, 300)
+        
 
         # 半透明窗口
         self.setWindowFlags(self.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
@@ -67,7 +68,9 @@ class DiskMonitor(QMainWindow):
 
         # 磁盘信息容器
         self.panel = QVBoxLayout()
+        self.panel.setSpacing(1)   # 控制不同盘符小组之间的间距
         layout.addLayout(self.panel)
+        layout.addStretch()  # 防止上方被挤下去
 
         # 绑定按钮事件
         self.add_button.clicked.connect(self.add_drive_dialog)
@@ -107,20 +110,28 @@ class DiskMonitor(QMainWindow):
     def add_drive(self, drive):
         if drive in self.drive_widgets:
             return
-
+        
         self.listbox.addItem(drive)
+
+        # 小组容器 (每个盘符 = label + progressbar)
+        group_widget = QWidget()
+        group_layout = QVBoxLayout(group_widget)
+        group_layout.setContentsMargins(0, 0, 0, 0)
+        group_layout.setSpacing(1)
 
         label = QLabel()
         label.setStyleSheet("font: 10pt Segoe UI; color: #333;")
         bar = QProgressBar()
         bar.setFixedHeight(20)
-        bar.setTextVisible(False)  # 不显示默认文字
-        bar.setStyleSheet(self.progress_style(0))  # 初始样式
+        bar.setTextVisible(False)
+        bar.setStyleSheet(self.progress_style(0))
 
-        self.panel.addWidget(label)
-        self.panel.addWidget(bar)
+        group_layout.addWidget(label)
+        group_layout.addWidget(bar)
 
-        self.drive_widgets[drive] = (bar, label)
+        self.panel.addWidget(group_widget)
+
+        self.drive_widgets[drive] = (bar, label, group_widget)
         self.update_drive(drive)
 
     def progress_style(self, percent):
@@ -153,14 +164,14 @@ class DiskMonitor(QMainWindow):
             total = usage.total
             percent = usage.percent
 
-            bar, label = self.drive_widgets[drive]
+            bar, label, _ = self.drive_widgets[drive]  # 注意这里改成解包 3 个值
             bar.setValue(int(percent))
             bar.setStyleSheet(self.progress_style(percent))
             label.setText(f"{drive} 剩 {self.format_size(free)} / 共 {self.format_size(total)} ({percent:.1f}% 已用)")
 
         except Exception:
             if drive in self.drive_widgets:
-                bar, label = self.drive_widgets[drive]
+                bar, label, _ = self.drive_widgets[drive]
                 bar.setValue(0)
                 bar.setStyleSheet(self.progress_style(0))
                 label.setText(f"{drive} 无法读取")
@@ -172,9 +183,8 @@ class DiskMonitor(QMainWindow):
 
         drive = item.text()
         if drive in self.drive_widgets:
-            bar, label = self.drive_widgets[drive]
-            bar.deleteLater()
-            label.deleteLater()
+            bar, label, group_widget = self.drive_widgets[drive]
+            group_widget.deleteLater()
             del self.drive_widgets[drive]
 
         self.listbox.takeItem(self.listbox.row(item))
