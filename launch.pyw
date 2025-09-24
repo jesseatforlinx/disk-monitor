@@ -31,13 +31,14 @@ class DiskMonitor(QMainWindow):
         layout = QVBoxLayout(central)
         layout.setSpacing(10)
 
-        # 按钮行
+        # ====== 上方区域（按钮 + 列表）======
+        top_layout = QVBoxLayout()
         button_layout = QHBoxLayout()
         self.add_button = QPushButton("添加盘符")
         self.remove_button = QPushButton("移除盘符")
         button_layout.addWidget(self.add_button)
         button_layout.addWidget(self.remove_button)
-        layout.addLayout(button_layout)
+        top_layout.addLayout(button_layout)
 
         # 设置按钮样式
         button_style = """
@@ -60,7 +61,9 @@ class DiskMonitor(QMainWindow):
         # 列表
         self.listbox = QListWidget()
         self.listbox.setFixedHeight(100)
-        layout.addWidget(self.listbox)
+        top_layout.addWidget(self.listbox)
+
+        layout.addLayout(top_layout)
 
         # 磁盘信息容器
         self.panel = QVBoxLayout()
