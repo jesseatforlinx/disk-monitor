@@ -16,7 +16,7 @@ os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = plugin_path
 class DiskMonitor(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("磁盘监控工具 v1.0.1")
+        self.setWindowTitle("磁盘监控工具 v1.0.2")
         self.resize(400, 150)     
 
         self.config_file = "drives.txt"
